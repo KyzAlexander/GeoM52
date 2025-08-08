@@ -77,9 +77,8 @@ const MapView: React.FC<MapViewProps> = ({ onSelectRectangle, onDrawnItemsRefRea
       style={{ height: "80vh", width: "100%" }}
     >
       <TileLayer
-        attribution="Stadia.OSMBright"
-        // url="https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.png"
-        url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
+        attribution="OpenStreetMap"
+        url="https://tile.openstreetmap.de/{z}/{x}/{y}.png"
       />
       <DrawRectangle onSelectRectangle={onSelectRectangle} onDrawnItemsRefReady={onDrawnItemsRefReady} />
     </MapContainer>
