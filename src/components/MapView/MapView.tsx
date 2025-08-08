@@ -19,8 +19,8 @@ const MapView: React.FC<MapViewProps> = ({ onSelectRectangle, onDrawnItemsRefRea
     const map = useMap();
 
     useEffect(() => {
-      const drawnItems = new L.FeatureGroup();
-      map.addLayer(drawnItems);
+      const drawnItems = new L.FeatureGroup(); //контейнер для слоёв
+      map.addLayer(drawnItems); //добавляем эти слои на карту
       onDrawnItemsRefReady(drawnItems);
 
       const drawControl = new L.Control.Draw({
@@ -40,10 +40,10 @@ const MapView: React.FC<MapViewProps> = ({ onSelectRectangle, onDrawnItemsRefRea
 
       map.addControl(drawControl);
 
-      map.on(L.Draw.Event.CREATED, (event: any) => {
+      map.on(L.Draw.Event.CREATED, (event: L.LeafletEvent) => {
         drawnItems.clearLayers();
 
-        const layer = event.layer;
+        const layer = event.layer; //слой который создали
         drawnItems.addLayer(layer);
 
         if (layer instanceof L.Rectangle) {
@@ -57,9 +57,14 @@ const MapView: React.FC<MapViewProps> = ({ onSelectRectangle, onDrawnItemsRefRea
       });
 
       return () => {
-        map.removeControl(drawControl);
+        map.removeControl(drawControl); //удаление контрола
+
+        //удаление нарисованного слоя  (но специально закоммитил, чтобы после закрытия модалки был виден ранее выделенный слой)
+        // if (map.hasLayer(drawnItems)) {
+        //   map.removeLayer(drawnItems); 
+        // }
       };
-    }, [map, onSelectRectangle, onDrawnItemsRefReady]);
+    }, [map, onSelectRectangle]);
 
     return null;
   };
@@ -73,6 +78,8 @@ const MapView: React.FC<MapViewProps> = ({ onSelectRectangle, onDrawnItemsRefRea
     >
       <TileLayer
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+
+        // attribution=&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <DrawRectangle onSelectRectangle={onSelectRectangle} onDrawnItemsRefReady={onDrawnItemsRefReady} />

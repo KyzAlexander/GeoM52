@@ -9,14 +9,16 @@ const MainPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
   const [history, setHistory] = useState<RectangleCoords[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history));
-  }, [history]);
+    if (isLoaded) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(history));
+    }
+  }, [history, isLoaded]);
 
   useEffect(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    console.log(stored);
 
     if (stored) {
       try {
@@ -26,6 +28,7 @@ const MainPage: React.FC = () => {
         console.warn('Ошибка парсинга localStorage');
       }
     }
+    setIsLoaded(true)
   }, []);
 
   const handleSelectRectangle = (newCoords: RectangleCoords) => {
@@ -51,43 +54,37 @@ const MainPage: React.FC = () => {
     setHistory([]);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
   };
+
   return (
     <>
       <MapView onSelectRectangle={handleSelectRectangle} onDrawnItemsRefReady={(ref) => (drawnItemsRef.current = ref)} />
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-        <h2>Координаты выделенной области</h2>
-        {coords && (
-          <div>
-            <p><strong>NorthEast:</strong> {coords.northEast.join(', ')}</p>
-            <p><strong>SouthWest:</strong> {coords.southWest.join(', ')}</p>
-          </div>
-        )}
-      </Modal>
+
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} coords={coords} />
 
       {history.length > 0 && (
-        <>
-          <div style={{ marginTop: '20px' }}>
+        <div className="history-section">
+          <div className="last-coords">
             <h3>Последние координаты</h3>
             <p>
-              <strong>NorthEast:</strong> {history[0].northEast.join(', ')}<br />
-              <strong>SouthWest:</strong> {history[0].southWest.join(', ')}
+              <strong>Северо-восток:</strong> {history[0].northEast.join(', ')}<br />
+              <strong>Юго-запад:</strong> {history[0].southWest.join(', ')}
             </p>
           </div>
 
-          <div style={{ marginTop: '20px' }}>
+          <div className="history-list">
             <h3>История координат</h3>
             <ol>
               {history.slice(1).map((item, index) => (
                 <li key={index}>
-                  NE: {item.northEast.join(', ')} | SW: {item.southWest.join(', ')}
+                  С-В: {item.northEast.join(', ')} | Ю-З: {item.southWest.join(', ')}
                 </li>
               ))}
             </ol>
-            <button onClick={handleClearHistory} style={{ marginTop: '10px' }}>
+            <button className="clear-btn" onClick={handleClearHistory}>
               Очистить историю
             </button>
           </div>
-        </>
+        </div>
       )}
     </>
   )
